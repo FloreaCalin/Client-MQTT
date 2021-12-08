@@ -72,12 +72,27 @@ class Ui_ConnectWindow(object):
         ConnectWindow.setWindowTitle(_translate("ConnectWindow", "MQTT Client"))
         self.label.setText(_translate("ConnectWindow", "Host"))
         self.label_2.setText(_translate("ConnectWindow", "Port"))
-        self.label_5.setText(_translate("ConnectWindow", "KeepAlive"))
+        self.label_5.setText(_translate("ConnectWindow", "Keep Alive"))
         self.label_6.setText(_translate("ConnectWindow", "Last Will Message"))
         self.pushButton.setText(_translate("ConnectWindow", "Connect"))
         self.pushButton_2.setText(_translate("ConnectWindow", "Disconnect"))
         self.label_3.setText(_translate("ConnectWindow", "Connect"))
 
+    def get_host(self):
+        host=self.lineEdit.text()
+        return host
+
+    def get_port(self):
+        port=self.lineEdit_2.text()
+        return port
+
+    def get_keep_alive(self):
+        keep_alive=self.lineEdit_5.text()
+        return keep_alive
+
+    def get_last_will_message(self):
+        last_will_message=self.lineEdit_6.text()
+        return last_will_message
 
 if __name__ == "__main__":
     import sys
