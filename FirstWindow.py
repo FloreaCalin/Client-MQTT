@@ -13,12 +13,18 @@ class Ui_FirstWindow(object):
         font.setWeight(75)
         self.label.setFont(font)
         self.label.setObjectName("label")
-        self.pushButton = QtWidgets.QPushButton(FirstWindow,clicked=lambda :self.on_createAccount_button_clicked())
+        self.pushButton = QtWidgets.QPushButton(FirstWindow)
         self.pushButton.setGeometry(QtCore.QRect(40, 200, 141, 23))
         self.pushButton.setObjectName("pushButton")
-        self.pushButton_2 = QtWidgets.QPushButton(FirstWindow,clicked=lambda :self.on_logIn_button_clicked())
+
+        self.pushButton.clicked.connect(self.on_createAccount_button_clicked)
+
+        self.pushButton_2 = QtWidgets.QPushButton(FirstWindow)
         self.pushButton_2.setGeometry(QtCore.QRect(210, 200, 141, 23))
         self.pushButton_2.setObjectName("pushButton_2")
+
+        self.pushButton_2.clicked.connect(self.on_logIn_button_clicked)
+
         self.label_2 = QtWidgets.QLabel(FirstWindow)
         self.label_2.setGeometry(QtCore.QRect(40, 100, 81, 16))
         font = QtGui.QFont("bold")
@@ -67,6 +73,14 @@ class Ui_FirstWindow(object):
         self.ui.setupUi(self.window)
         FirstWindow.hide()
         self.window.show()
+
+    def get_username(self):
+        username=self.lineEdit.text()
+        return username
+
+    def get_password(self):
+        password=self.lineEdit_2.text()
+        return password
 
 if __name__ == "__main__":
     import sys

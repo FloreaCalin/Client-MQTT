@@ -1,6 +1,5 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-
 class Ui_UnsubscribeWindow(object):
     def setupUi(self, UnsubscribeWindow):
         UnsubscribeWindow.setObjectName("UnsubscribeWindow")
@@ -27,7 +26,6 @@ class Ui_UnsubscribeWindow(object):
         self.pushButton = QtWidgets.QPushButton(UnsubscribeWindow)
         self.pushButton.setGeometry(QtCore.QRect(130, 150, 121, 23))
         self.pushButton.setObjectName("pushButton")
-
         self.retranslateUi(UnsubscribeWindow)
         QtCore.QMetaObject.connectSlotsByName(UnsubscribeWindow)
 
@@ -38,6 +36,9 @@ class Ui_UnsubscribeWindow(object):
         self.label_2.setText(_translate("UnsubscribeWindow", "Topic"))
         self.pushButton.setText(_translate("UnsubscribeWindow", "Unsubscribe"))
 
+    def get_topic(self):
+        topic = self.lineEdit.text()
+        return topic
 
 if __name__ == "__main__":
     import sys

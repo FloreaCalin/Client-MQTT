@@ -56,6 +56,9 @@ class Ui_SubscribeWindow(object):
         self.label_3.setText(_translate("SubscribeWindow", "QoS"))
         self.pushButton.setText(_translate("SubscribeWindow", "Subscribe"))
 
+    def get_topic(self):
+        topic = self.lineEdit.text()
+        return topic
 
 if __name__ == "__main__":
     import sys

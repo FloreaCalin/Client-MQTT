@@ -78,12 +78,18 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label_5.setFont(font)
         self.label_5.setObjectName("label_5")
-        self.pushButton_2 = QtWidgets.QPushButton(self.frame_2,clicked=lambda :self.on_addNewTopicSubscription_button_clicked())
+        self.pushButton_2 = QtWidgets.QPushButton(self.frame_2)
         self.pushButton_2.setGeometry(QtCore.QRect(30, 60, 191, 21))
         self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_4 = QtWidgets.QPushButton(self.frame_2,clicked=lambda :self.on_removeATopicSubscription_button_clicked())
+
+        self.pushButton_2.clicked.connect(self.on_addNewTopicSubscription_button_clicked)
+
+        self.pushButton_4 = QtWidgets.QPushButton(self.frame_2)
         self.pushButton_4.setGeometry(QtCore.QRect(30, 90, 191, 21))
         self.pushButton_4.setObjectName("pushButton_4")
+
+        self.pushButton_4.clicked.connect(self.on_removeATopicSubscription_button_clicked)
+
         self.textEdit_2 = QtWidgets.QTextEdit(self.frame_2)
         self.textEdit_2.setGeometry(QtCore.QRect(30, 120, 191, 81))
         self.textEdit_2.setObjectName("textEdit_2")
@@ -104,7 +110,7 @@ class Ui_MainWindow(object):
         self.textEdit = QtWidgets.QTextEdit(self.frame_3)
         self.textEdit.setGeometry(QtCore.QRect(30, 60, 471, 191))
         self.textEdit.setObjectName("textEdit")
-        self.pushButton_3 = QtWidgets.QPushButton(MainWindow, clicked=lambda :self.on_connect_button_clicked())
+        self.pushButton_3 = QtWidgets.QPushButton(MainWindow)
         self.pushButton_3.setGeometry(QtCore.QRect(50, 350, 81, 51))
         font = QtGui.QFont("bold")
         font.setPointSize(10)
@@ -112,6 +118,8 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.pushButton_3.setFont(font)
         self.pushButton_3.setObjectName("pushButton_3")
+
+        self.pushButton_3.clicked.connect(self.on_connect_button_clicked)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -150,6 +158,14 @@ class Ui_MainWindow(object):
         self.ui=Ui_UnsubscribeWindow()
         self.ui.setupUi(self.window)
         self.window.show()
+
+    def get_topic(self):
+        topic = self.lineEdit.text()
+        return topic
+
+    def get_message(self):
+        message = self.lineEdit_2.text()
+        return message
 
 if __name__ == "__main__":
     import sys
