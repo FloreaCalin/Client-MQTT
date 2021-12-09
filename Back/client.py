@@ -1,6 +1,6 @@
 import socket
 
-from Back.Packet import Connect
+from Back.Packet import Connect, Disconnect, PingReq, Publish
 
 
 class Client(object):
@@ -18,6 +18,34 @@ class Client(object):
 
         packet = connPacket.makePacket()
         print(packet)
+        self.__s.sendall(packet)
+
+        message = self.__s.recv(1024)
+        print (message)
+
+    def publish (self, _topicName, _message, _Qos, _packetIdentifier):
+        publishPacket = Publish(_topicName, _message, _Qos, _packetIdentifier)
+
+        packet = publishPacket.makePacket()
+        print(packet)
+        self.__s.sendall(packet)
+
+        message = self.__s.recv(1024)
+        print (message)
+
+    def disconnect (self):
+        dissPacket = Disconnect ()
+
+        packet = dissPacket.makePacket()
+        self.__s.sendall(packet)
+
+        message = self.__s.recv(1024)
+        print (message)
+
+    def pingreq (self):
+        pingPacket = PingReq ()
+
+        packet = pingPacket.makePacket()
         self.__s.sendall(packet)
 
         message = self.__s.recv(1024)
