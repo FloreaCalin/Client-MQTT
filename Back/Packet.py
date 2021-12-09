@@ -2,14 +2,14 @@
 messageTypes = {
     'CONNECT': b'\x10',
     'CONNACK': b'\x20',
-    'PUBLISH': b'\x30',
+    'PUBLISH': 3,
     'PUBACK': b'\x40',
     'PUBREC': b'\x50',
     'PUBREL': b'\x60',
     'PUBCOMP': b'\x70',
-    'SUBSCRIBE': b'\x80',
+    'SUBSCRIBE': 8,
     'SUBACK': b'\x90',
-    'UNSUBSCRIBE': b'\xA0',
+    'UNSUBSCRIBE': 10,
     'UNSUBACK': b'\xB0',
     'PINGREQ': b'\xC0',
     'PINGRESP': b'\D0',
@@ -61,8 +61,7 @@ class Connect(object):
 
     def makePacket (self):
         #Variable header
-        variableHeader = b'\x00'
-        variableHeader += b'\x04' #length mqtt string
+        variableHeader = b'\x00\x04' #length mqtt string
         variableHeader += ('MQTT').encode ('UTF-8') #protocol name
         variableHeader += b'\x04' #version of mqtt
         variableHeader += self.getFlagValue() #flag
@@ -115,32 +114,82 @@ class PingReq (object):
         return packet
 
 class Publish (object):
-    def __init__ (self, _topicName, _message, _Qos, _packetIdentifier):
+    def __init__ (self, _topicName, _message, _Qos, _dup, _retain):
         self.__topicName = _topicName
         self.__message = _message
         self.__Qos = _Qos
-        self.__packetIdentifier = _packetIdentifier
+        self.__dup = _dup
+        self.__retain = _retain
 
         self.Qo2B0 = (self.__Qos & 1)
-        if (self.Qo2B0 == 0):
-            self.Qo2B0 = None
 
         self.Qo2B1 = ((self.__Qos >> 1) & 1)
-        if (self.Qo2B1 == 0):
-            self.Qo2B1 = None
 
     def makePacket (self):
-        finalPacket = messageTypes['PUBLISH']
+        valFixedHeader = messageTypes['PUBLISH'] * 16 + (self.__dup * 8) + (self.Qo2B1 * 4) + (self.Qo2B0 * 2) + (self.__retain * 1)
+        finalPacket = valFixedHeader.to_bytes(1, byteorder='big')
+        print (finalPacket)
 
         #make variable header
-        variableHeader = (self.__packetIdentifier).to_bytes (1, byteorder='big')
-        variableHeader += (len (self.__topicName)).to_bytes(1, byteorder='big')
+        variableHeader = (len (self.__topicName)).to_bytes(2, byteorder='big')
         variableHeader += (self.__topicName).encode('UTF-8')
+        variableHeader += (10).to_bytes (2, byteorder='big')
 
-        payload = (len(self.__message)).to_bytes(1, byteorder='big')
+        payload = (len(self.__message)).to_bytes(2, byteorder='big')
         payload += (self.__message).encode ('UTF-8')
 
-        stringConcat = variableHeader +  payload
-        finalPacket += stringConcat
+        stringConcat = variableHeader + payload
+        remainingLength = (len(stringConcat)).to_bytes(1, byteorder='big')
+
+        finalPacket += remainingLength + stringConcat
+
+        return finalPacket
+
+class Subscribe (object):
+    def __init__ (self, _topicList, _QosList):
+        self.__topicList = _topicList
+        self.__QosList = _QosList
+
+    def makePacket (self):
+        valFixedHeader = messageTypes['SUBSCRIBE'] * 16 + 2
+        finalPacket = valFixedHeader.to_bytes(1, byteorder='big')
+
+        variableHeader = b'\x00\x0a'
+
+        n = len (self.__topicList)
+        payload = bytearray ()
+        for i in range (0, n):
+            payload += (len(self.__topicList[i])).to_bytes(2, byteorder='big')
+            payload += (self.__topicList[i]).encode ('UTF-8')
+
+            payload += (self.__QosList[i]).to_bytes(1, byteorder='big')
+
+        stringConcat = variableHeader + payload
+        remainingLength = (len(stringConcat)).to_bytes(1, byteorder='big')
+
+        finalPacket += remainingLength + stringConcat
+
+        return finalPacket
+
+class Unsubscribe (object):
+    def __init__ (self, _topicList):
+        self.__topicList = _topicList
+
+    def makePacket (self):
+        valFixedHeader = messageTypes['UNSUBSCRIBE'] * 16 + 2
+        finalPacket = valFixedHeader.to_bytes(1, byteorder='big')
+
+        variableHeader = b'\x00\x00'
+
+        n = len (self.__topicList)
+        payload = bytearray ()
+        for i in range (0, n):
+            payload += (len(self.__topicList[i])).to_bytes(2, byteorder='big')
+            payload += (self.__topicList[i]).encode ('UTF-8')
+
+        stringConcat = variableHeader + payload
+        remainingLength = (len(stringConcat)).to_bytes(1, byteorder='big')
+
+        finalPacket += remainingLength + stringConcat
 
         return finalPacket
