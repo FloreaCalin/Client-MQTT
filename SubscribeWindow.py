@@ -60,6 +60,10 @@ class Ui_SubscribeWindow(object):
         topic = self.lineEdit.text()
         return topic
 
+    def get_qos(self):
+        qos=self.comboBox.currentText()
+        return qos
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)

@@ -167,6 +167,10 @@ class Ui_MainWindow(object):
         message = self.lineEdit_2.text()
         return message
 
+    def get_qos(self):
+        qos = self.comboBox.currentText()
+        return qos
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)

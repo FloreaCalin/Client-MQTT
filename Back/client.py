@@ -21,7 +21,7 @@ class Client(object):
         self.__s.connect((_host, _port))
 
         self.__threadForReceiveMessages = threading.Thread (target = self.loopGetMessages, args = (self.__s,))
-        self.__threadForReceiveMessages.start()
+        #self.__threadForReceiveMessages.start()
 
         connPacket = Connect (self.__id, self.__username, self.__password, _keepAlive, _cleanSession,
                               _lastWillTopic, _lastWillMessage, _lastWillQos, _lastWillRetain)
