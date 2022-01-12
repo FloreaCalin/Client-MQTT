@@ -30,8 +30,8 @@ class Client(object):
         print(packet)
         self.__s.sendall(packet)
 
-        message = self.__s.recv(1024)
-        print (message)
+        #message = self.__s.recv(1024)
+        #print (message)
 
     def publish (self, _topicName, _message, _Qos, _dup, _retain):
         publishPacket = Publish(_topicName, _message, _Qos, _dup, _retain)
@@ -40,8 +40,8 @@ class Client(object):
         print(packet)
         self.__s.sendall(packet)
 
-        message = self.__s.recv(1024)
-        print (message)
+        #message = self.__s.recv(1024)
+        #print (message)
 
     def disconnect (self):
         dissPacket = Disconnect ()
@@ -49,8 +49,8 @@ class Client(object):
         packet = dissPacket.makePacket()
         self.__s.sendall(packet)
 
-        message = self.__s.recv(1024)
-        print (message)
+        #message = self.__s.recv(1024)
+        #print (message)
 
     def pingreq (self):
         pingPacket = PingReq ()
@@ -58,8 +58,8 @@ class Client(object):
         packet = pingPacket.makePacket()
         self.__s.sendall(packet)
 
-        message = self.__s.recv(1024)
-        print (message)
+        #message = self.__s.recv(1024)
+        #print (message)
 
     def subscribe (self, _topicList, _QosList):
         subPacket = Subscribe (_topicList, _QosList)
@@ -68,8 +68,8 @@ class Client(object):
         self.__s.sendall(packet)
         print (packet)
 
-        message = self.__s.recv(1024)
-        print (message)
+        #message = self.__s.recv(1024)
+        #print (message)
 
     def unsubscribe (self, _topicList):
         unSubPacket = Unsubscribe(_topicList)
@@ -79,5 +79,5 @@ class Client(object):
         self.__s.sendall(packet)
         print (packet)
 
-        message = self.__s.recv(1024)
-        print (message)
+        #message = self.__s.recv(1024)
+        #print (message)

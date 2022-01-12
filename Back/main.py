@@ -4,7 +4,7 @@ from Back.client import Client
 
 if __name__ == '__main__':
     client = Client (20, 'calin', 'parola')
-    client.connect('broker.mqttdashboard.com', 1883, 255, 1, 1, None, None, None)
+    client.connect('broker.mqttdashboard.com', 1883, 20, None, None, None, None, None)
     #client.pingreq()
 
     client.publish('topic', "akhf", 1, 0, 0)
