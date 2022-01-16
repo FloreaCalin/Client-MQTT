@@ -46,7 +46,7 @@ class Connect(object):
             Qo2B1 = None
 
         #facem o lista cu valorile ce ar putea aparea in payload, ne ajuta la determinarea flagului
-        self.mapConnParam = [_username, _password, _lastWillRetain, Qo2B1, Qo2B0, self.willFlag, _cleanSession, None]
+        self.mapConnParam = [_username, _password, _lastWillRetain, Qo2B1, Qo2B0, self.willFlag, _cleanSession, _lastWillRetain]
 
     #scoatem valoarea flagului care indica ce valori avem in payload
     def getFlagValue(self):
@@ -65,7 +65,7 @@ class Connect(object):
         variableHeader += ('MQTT').encode ('UTF-8') #protocol name
         variableHeader += b'\x04' #version of mqtt
         variableHeader += self.getFlagValue() #flag
-        variableHeader += (self.__keepAlive).to_bytes (1, byteorder='big') #keep alive
+        variableHeader += (self.__keepAlive).to_bytes (2, byteorder='big') #keep alive
 
         #payload
         #set Id
@@ -88,7 +88,7 @@ class Connect(object):
             payload += (len (self.__password)).to_bytes (2, byteorder='big')
             payload += self.__password.encode ('UTF-8')
 
-        stringConcat = variableHeader + '!'.encode('UTF-8') + payload
+        stringConcat = variableHeader + payload
 
         finalPacket = messageTypes['CONNECT']
         finalPacket += len(stringConcat).to_bytes(1, byteorder='big')
