@@ -12,7 +12,7 @@ messageTypes = {
     'UNSUBSCRIBE': 10,
     'UNSUBACK': b'\xB0',
     'PINGREQ': b'\xC0',
-    'PINGRESP': b'\D0',
+    'PINGRESP': b'\xD0',
     'DISCONNECT': b'\xE0',
     'AUTH': b'\xF0'
 }
@@ -46,7 +46,7 @@ class Connect(object):
             Qo2B1 = None
 
         #facem o lista cu valorile ce ar putea aparea in payload, ne ajuta la determinarea flagului
-        self.mapConnParam = [_username, _password, _lastWillRetain, Qo2B1, Qo2B0, self.willFlag, _cleanSession, _lastWillRetain]
+        self.mapConnParam = [_username, _password, _lastWillRetain, Qo2B1, Qo2B0, self.willFlag, _cleanSession, None]
 
     #scoatem valoarea flagului care indica ce valori avem in payload
     def getFlagValue(self):
@@ -133,7 +133,6 @@ class Publish (object):
         #make variable header
         variableHeader = (len (self.__topicName)).to_bytes(2, byteorder='big')
         variableHeader += (self.__topicName).encode('UTF-8')
-        variableHeader += (10).to_bytes (2, byteorder='big')
 
         payload = (len(self.__message)).to_bytes(2, byteorder='big')
         payload += (self.__message).encode ('UTF-8')
