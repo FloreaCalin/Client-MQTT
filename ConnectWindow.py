@@ -4,7 +4,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_ConnectWindow(object):
     def setupUi(self, ConnectWindow):
         ConnectWindow.setObjectName("ConnectWindow")
-        ConnectWindow.resize(337, 293)
+        ConnectWindow.resize(337, 445)
         self.label = QtWidgets.QLabel(ConnectWindow)
         self.label.setGeometry(QtCore.QRect(10, 80, 61, 21))
         font = QtGui.QFont("bold")
@@ -50,10 +50,10 @@ class Ui_ConnectWindow(object):
         self.label_6.setFont(font)
         self.label_6.setObjectName("label_6")
         self.pushButton = QtWidgets.QPushButton(ConnectWindow)
-        self.pushButton.setGeometry(QtCore.QRect(80, 250, 75, 23))
+        self.pushButton.setGeometry(QtCore.QRect(80, 400, 75, 23))
         self.pushButton.setObjectName("pushButton")
         self.pushButton_2 = QtWidgets.QPushButton(ConnectWindow)
-        self.pushButton_2.setGeometry(QtCore.QRect(180, 250, 75, 23))
+        self.pushButton_2.setGeometry(QtCore.QRect(180, 400, 75, 23))
         self.pushButton_2.setObjectName("pushButton_2")
         self.label_3 = QtWidgets.QLabel(ConnectWindow)
         self.label_3.setGeometry(QtCore.QRect(110, 10, 121, 51))
@@ -63,6 +63,55 @@ class Ui_ConnectWindow(object):
         font.setWeight(75)
         self.label_3.setFont(font)
         self.label_3.setObjectName("label_3")
+        self.label_4 = QtWidgets.QLabel(ConnectWindow)
+        self.label_4.setGeometry(QtCore.QRect(10, 240, 111, 21))
+        font = QtGui.QFont("bold")
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_4.setFont(font)
+        self.label_4.setObjectName("label_4")
+        self.lineEdit_3 = QtWidgets.QLineEdit(ConnectWindow)
+        self.lineEdit_3.setGeometry(QtCore.QRect(140, 240, 181, 20))
+        self.lineEdit_3.setObjectName("lineEdit_3")
+        self.label_7 = QtWidgets.QLabel(ConnectWindow)
+        self.label_7.setGeometry(QtCore.QRect(10, 280, 91, 21))
+        font = QtGui.QFont("bold")
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_7.setFont(font)
+        self.label_7.setObjectName("label_7")
+        self.comboBox = QtWidgets.QComboBox(ConnectWindow)
+        self.comboBox.setGeometry(QtCore.QRect(140, 280, 41, 22))
+        self.comboBox.setObjectName("comboBox")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.label_8 = QtWidgets.QLabel(ConnectWindow)
+        self.label_8.setGeometry(QtCore.QRect(10, 320, 91, 21))
+        font = QtGui.QFont("bold")
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_8.setFont(font)
+        self.label_8.setObjectName("label_8")
+        self.checkBox = QtWidgets.QCheckBox(ConnectWindow)
+        self.checkBox.setGeometry(QtCore.QRect(140, 320, 51, 21))
+        self.checkBox.setText("")
+        self.checkBox.setObjectName("checkBox")
+        self.label_9 = QtWidgets.QLabel(ConnectWindow)
+        self.label_9.setGeometry(QtCore.QRect(10, 360, 91, 21))
+        font = QtGui.QFont("bold")
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_9.setFont(font)
+        self.label_9.setObjectName("label_9")
+        self.checkBox_2 = QtWidgets.QCheckBox(ConnectWindow)
+        self.checkBox_2.setGeometry(QtCore.QRect(140, 360, 51, 21))
+        self.checkBox_2.setText("")
+        self.checkBox_2.setObjectName("checkBox_2")
 
         self.retranslateUi(ConnectWindow)
         QtCore.QMetaObject.connectSlotsByName(ConnectWindow)
@@ -72,27 +121,50 @@ class Ui_ConnectWindow(object):
         ConnectWindow.setWindowTitle(_translate("ConnectWindow", "MQTT Client"))
         self.label.setText(_translate("ConnectWindow", "Host"))
         self.label_2.setText(_translate("ConnectWindow", "Port"))
-        self.label_5.setText(_translate("ConnectWindow", "Keep Alive"))
+        self.label_5.setText(_translate("ConnectWindow", "KeepAlive"))
         self.label_6.setText(_translate("ConnectWindow", "Last Will Message"))
         self.pushButton.setText(_translate("ConnectWindow", "Connect"))
         self.pushButton_2.setText(_translate("ConnectWindow", "Disconnect"))
         self.label_3.setText(_translate("ConnectWindow", "Connect"))
+        self.label_4.setText(_translate("ConnectWindow", "Last Will Topic"))
+        self.label_7.setText(_translate("ConnectWindow", "Last Will QoS"))
+        self.comboBox.setItemText(0, _translate("ConnectWindow", "0"))
+        self.comboBox.setItemText(1, _translate("ConnectWindow", "1"))
+        self.comboBox.setItemText(2, _translate("ConnectWindow", "2"))
+        self.label_8.setText(_translate("ConnectWindow", "Clean Session"))
+        self.label_9.setText(_translate("ConnectWindow", "Last Will Retain"))
 
     def get_host(self):
-        host=self.lineEdit.text()
+        host = self.lineEdit.text()
         return host
 
     def get_port(self):
-        port=self.lineEdit_2.text()
+        port = self.lineEdit_2.text()
         return port
 
     def get_keep_alive(self):
-        keep_alive=self.lineEdit_5.text()
+        keep_alive = self.lineEdit_5.text()
         return keep_alive
 
     def get_last_will_message(self):
-        last_will_message=self.lineEdit_6.text()
+        last_will_message = self.lineEdit_6.text()
         return last_will_message
+
+    def get_last_will_topic(self):
+        last_will_topic = self.lineEdit_3.text()
+        return last_will_topic
+
+    def get_last_will_qos(self):
+        last_will_qos = self.comboBox.currentText()
+        return last_will_qos
+
+    def get_clean_session(self):
+        clean_session=self.checkBox.isChecked()
+        return clean_session
+
+    def get_last_will_retain(self):
+        last_will_retain=self.checkBox_2.isChecked()
+        return last_will_retain
 
 if __name__ == "__main__":
     import sys

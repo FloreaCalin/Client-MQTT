@@ -42,7 +42,7 @@ class Client(object):
         self.__keepAliveMaxTime = _keepAlive
 
         self.__threadForReceiveMessages = threading.Thread (target = self.loopGetMessages, args = (self.__s,))
-        self.__threadForReceiveMessages.start()
+        #self.__threadForReceiveMessages.start()
 
         self.__threadForHandleMessages = threading.Thread (target = self.loopHandleQueue, args = ())
         self.__threadForHandleMessages.start()
