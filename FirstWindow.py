@@ -17,13 +17,13 @@ class Ui_FirstWindow(object):
         self.pushButton.setGeometry(QtCore.QRect(40, 200, 141, 23))
         self.pushButton.setObjectName("pushButton")
 
-        self.pushButton.clicked.connect(self.on_createAccount_button_clicked)
+        self.pushButton.clicked.connect(lambda:self.on_createAccount_button_clicked())
 
         self.pushButton_2 = QtWidgets.QPushButton(FirstWindow)
         self.pushButton_2.setGeometry(QtCore.QRect(210, 200, 141, 23))
         self.pushButton_2.setObjectName("pushButton_2")
 
-        self.pushButton_2.clicked.connect(self.on_logIn_button_clicked)
+        self.pushButton_2.clicked.connect(lambda:self.on_logIn_button_clicked())
 
         self.label_2 = QtWidgets.QLabel(FirstWindow)
         self.label_2.setGeometry(QtCore.QRect(40, 100, 81, 16))
