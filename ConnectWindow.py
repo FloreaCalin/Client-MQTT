@@ -1,6 +1,5 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-
 class Ui_ConnectWindow(object):
     def setupUi(self, ConnectWindow):
         ConnectWindow.setObjectName("ConnectWindow")
@@ -112,6 +111,15 @@ class Ui_ConnectWindow(object):
         self.checkBox_2.setGeometry(QtCore.QRect(140, 360, 51, 21))
         self.checkBox_2.setText("")
         self.checkBox_2.setObjectName("checkBox_2")
+        self.textEdit = QtWidgets.QTextEdit(ConnectWindow)
+        self.textEdit.setGeometry(QtCore.QRect(170, 320, 151, 61))
+
+
+        self.textEdit.setObjectName("textEdit")
+
+        self.pushButton.clicked.connect(lambda:self.insert_text(connection_msg))
+
+        self.pushButton_2.clicked.connect(lambda:self.on_disconnect_button_clicked())
 
         self.retranslateUi(ConnectWindow)
         QtCore.QMetaObject.connectSlotsByName(ConnectWindow)
@@ -165,6 +173,18 @@ class Ui_ConnectWindow(object):
     def get_last_will_retain(self):
         last_will_retain=self.checkBox_2.isChecked()
         return last_will_retain
+
+    def insert_text(self,connection_msg):
+        while connection_msg!=None:
+            self.textEdit.setText(connection_msg)
+            break
+
+    def on_disconnect_button_clicked(self):
+        msg="Disconnected"
+        self.textEdit.setText(msg)
+
+
+connection_msg = "Connection accepted"
 
 if __name__ == "__main__":
     import sys

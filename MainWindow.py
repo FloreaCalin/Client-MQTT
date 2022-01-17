@@ -82,13 +82,13 @@ class Ui_MainWindow(object):
         self.pushButton_2.setGeometry(QtCore.QRect(30, 60, 191, 21))
         self.pushButton_2.setObjectName("pushButton_2")
 
-        self.pushButton_2.clicked.connect(self.on_addNewTopicSubscription_button_clicked)
+        self.pushButton_2.clicked.connect(lambda:self.on_addNewTopicSubscription_button_clicked())
 
         self.pushButton_4 = QtWidgets.QPushButton(self.frame_2)
         self.pushButton_4.setGeometry(QtCore.QRect(30, 90, 191, 21))
         self.pushButton_4.setObjectName("pushButton_4")
 
-        self.pushButton_4.clicked.connect(self.on_removeATopicSubscription_button_clicked)
+        self.pushButton_4.clicked.connect(lambda:self.on_removeATopicSubscription_button_clicked())
 
         self.textEdit_2 = QtWidgets.QTextEdit(self.frame_2)
         self.textEdit_2.setGeometry(QtCore.QRect(30, 120, 191, 81))
@@ -119,7 +119,9 @@ class Ui_MainWindow(object):
         self.pushButton_3.setFont(font)
         self.pushButton_3.setObjectName("pushButton_3")
 
-        self.pushButton_3.clicked.connect(self.on_connect_button_clicked)
+        self.pushButton_3.clicked.connect(lambda:self.on_connect_button_clicked())
+        #self.pushButton_3.clicked.connect(lambda:self.write_msg(msg))
+        #self.pushButton_3.clicked.connect(lambda:self.write_topic(topic))
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -170,6 +172,17 @@ class Ui_MainWindow(object):
     def get_qos(self):
         qos = self.comboBox.currentText()
         return qos
+
+    def write_msg(self, msg_list):
+        for msg in msg_list:
+            self.textEdit.append(msg)
+
+    def write_topic(self, topic_list):
+        for topic in topic_list:
+            self.textEdit_2.append(topic)
+
+#msg=["Message1","Message2","Message3"]
+#topic=["topic1","topic2"]
 
 if __name__ == "__main__":
     import sys
