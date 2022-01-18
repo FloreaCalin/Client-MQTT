@@ -7,6 +7,10 @@ from Back.Packet import Connect, Disconnect, PingReq, Publish, Subscribe, Unsubs
 
 listOfMessages = []
 connectResponse = ''
+
+def getConnectResponse ():
+    return connectResponse
+
 class Client(object):
     #init data
     __queueMessages = []
