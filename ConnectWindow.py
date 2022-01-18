@@ -1,7 +1,12 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from Back.client import getConnectResponse, Client
+
 class Ui_ConnectWindow(object):
-    def setupUi(self, ConnectWindow):
+    def setupUi(self, ConnectWindow, id, user, password):
+        self.id = id
+        self.user = user
+        self.password = password
         ConnectWindow.setObjectName("ConnectWindow")
         ConnectWindow.resize(337, 445)
         self.label = QtWidgets.QLabel(ConnectWindow)
@@ -117,7 +122,7 @@ class Ui_ConnectWindow(object):
 
         self.textEdit.setObjectName("textEdit")
 
-        self.pushButton.clicked.connect(lambda:self.insert_text(connection_msg))
+        self.pushButton.clicked.connect(lambda:self.insert_text())
 
         self.pushButton_2.clicked.connect(lambda:self.on_disconnect_button_clicked())
 
@@ -174,10 +179,34 @@ class Ui_ConnectWindow(object):
         last_will_retain=self.checkBox_2.isChecked()
         return last_will_retain
 
-    def insert_text(self,connection_msg):
-        while connection_msg!=None:
-            self.textEdit.setText(connection_msg)
-            break
+    def insert_text(self):
+        host = self.get_host()
+        port = int(self.get_port())
+        keepAlive = int (self.get_keep_alive())
+        lastWillMessage = self.get_last_will_message()
+        lastWillTopic = self.get_last_will_topic()
+        lastWillQos = int (self.get_last_will_qos())
+        cleanSession = self.get_clean_session()
+        lastWillRetain = self.get_last_will_retain()
+
+        if lastWillMessage == '' or lastWillTopic == '':
+            lastWillMessage = None
+            lastWillTopic = None
+            lastWillQos = None
+
+        if cleanSession == False:
+            cleanSession = None
+
+        if lastWillRetain == False:
+            lastWillRetain = None
+
+        client = Client (self.id, self.user, self.password)
+        client.connect (host, port, keepAlive, cleanSession, lastWillTopic, lastWillMessage,
+                         lastWillQos, lastWillRetain)
+
+        client.subscribe(['testtopic/foarte/interesant/poate/merge/#'], [2])
+
+        self.textEdit.setText(getConnectResponse ())
 
     def on_disconnect_button_clicked(self):
         msg="Disconnected"

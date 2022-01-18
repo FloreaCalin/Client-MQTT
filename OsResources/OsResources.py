@@ -147,3 +147,6 @@ class OS_Resources(object):
 
     def get_function_name(self):
         return self.function_name
+
+if __name__ == '__main__':
+    print ("ma ta")

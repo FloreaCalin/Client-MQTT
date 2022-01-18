@@ -1,11 +1,21 @@
+import threading
+
 from PyQt6 import QtCore, QtGui, QtWidgets
+
+from Back.client import listOfMessages
 from ConnectWindow import Ui_ConnectWindow
 from SubscribeWindow import Ui_SubscribeWindow
 from UnsubscribeWindow import Ui_UnsubscribeWindow
 from OsResources.OsResources import OS_Resources
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
+    def setupUi(self, MainWindow, id, user, password):
+        self.__threadForViewMessages = threading.Thread (target = self.write_msg, args = ())
+        self.__threadForViewMessages.start()
+
+        self.id = id
+        self.user = user
+        self.password = password
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(731, 611)
         font = QtGui.QFont("bold")
@@ -138,8 +148,6 @@ class Ui_MainWindow(object):
         self.pushButton_3.setObjectName("pushButton_3")
 
         self.pushButton_3.clicked.connect(lambda: self.on_connect_button_clicked())
-        #self.pushButton_3.clicked.connect(lambda: self.write_msg(msg))
-        #self.pushButton_3.clicked.connect(lambda: self.write_topic(topic))
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -166,7 +174,7 @@ class Ui_MainWindow(object):
     def on_connect_button_clicked(self):
         self.window=QtWidgets.QWidget()
         self.ui=Ui_ConnectWindow()
-        self.ui.setupUi(self.window)
+        self.ui.setupUi(self.window, self.id, self.user, self.password)
         self.window.show()
 
     def on_addNewTopicSubscription_button_clicked(self):
@@ -193,9 +201,10 @@ class Ui_MainWindow(object):
         qos = self.comboBox.currentText()
         return qos
 
-    def write_msg(self, msg_list):
-        for msg in msg_list:
-            self.textEdit.append(msg)
+    def write_msg(self):
+        while 1:
+            for msg in listOfMessages:
+                self.textEdit.append(msg)
 
     def write_topic(self, topic_list):
         for topic in topic_list:
