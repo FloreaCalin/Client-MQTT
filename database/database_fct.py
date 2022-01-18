@@ -1,11 +1,16 @@
 import cx_Oracle
-import constants
+#import constants
+
+USER="bd149"
+PASSWORD="Stef10012000"
+DSN="bd-dc.cs.tuiasi.ro:1539/orcl"
+ENCODING="UTF-8"
 
 def connect_db():
-    connection = cx_Oracle.connect(user=constants.USER,
-                                   password=constants.PASSWORD,
-                                   dsn=constants.DSN,
-                                   encoding=constants.ENCODING)
+    connection = cx_Oracle.connect(user=USER,
+                                   password=PASSWORD,
+                                   dsn=DSN,
+                                   encoding=ENCODING)
 
     return connection
 
@@ -21,7 +26,7 @@ def select_bd(connection, username, password):
 
     id=ceva[0]
 
-    if(id!=0):
+    if(id != 0):
         return id
     else:
         return None
