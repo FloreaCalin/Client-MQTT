@@ -5,7 +5,8 @@ import time
 from Back.Packet import Connect, Disconnect, PingReq, Publish, Subscribe, Unsubscribe, Pubrel, Connack, Puback, Pubrec, \
     Pubcomp, Subpack, Unsuback, Pingresp
 
-
+listOfMessages = []
+connectResponse = ''
 class Client(object):
     #init data
     __queueMessages = []
@@ -38,7 +39,38 @@ class Client(object):
         if identifierFirstByte == '0x20' and identifierSecondByte == '0x2': #connack
             connackPacket = Connack ()
             response = connackPacket.parseData(packet)
+            connectResponse = response
             print (response)
+
+        elif identifierFirstByte[2] == '3': #publish back
+            publishPacket = Publish ()
+            response = publishPacket.parseData(packet)
+
+            #test QOS
+            if (response[2] == 0): #QOS = 0
+                topic = str (response[0])
+                message = str (response[1])
+                listOfMessages.append ('topic: ' + topic[2 : len (topic) - 1] + '\nmessage: ' + message[2 : len (message) - 1])
+
+            if (response[2] == 1): #QOS = 1
+                pubackPacket = Puback ()
+                packetToSend = pubackPacket.makePacket(response[3])
+
+                topic = str (response[0])
+                message = str (response[1])
+                listOfMessages.append('topic: ' + topic[2 : len (topic) - 1] + '\nmessage: ' + message[2 : len (message) - 1])
+
+                self.__s.sendall(packetToSend)
+
+            if (response[2] == 2): #QOS = 2
+                pubrecPacket = Pubrec ()
+                packetToSend = pubrecPacket.makePacket(response[3])
+
+                topic = str (response[0])
+                message = str (response[1])
+                listOfMessages.append ('topic: ' + topic[2 : len (topic) - 1] + '\nmessage: ' + message[2 : len (message) - 1])
+
+                self.__s.sendall(packetToSend)
 
         elif identifierFirstByte == '0x40' and identifierSecondByte == '0x2': #puback
             pubackPacket = Puback ()
@@ -52,6 +84,15 @@ class Client(object):
 
             pubrelPacket = Pubrel ()
             packetToSend = pubrelPacket.makePacket(responseID)
+
+            self.__s.sendall(packetToSend)
+
+        elif identifierFirstByte == '0x62' and identifierSecondByte == '0x2': #pubrel
+            pubrelPacket = Pubrel ()
+            responseID = pubrelPacket.parseData(packet)
+
+            pubcompPacket = Pubcomp ()
+            packetToSend = pubcompPacket.makePacket(responseID)
 
             self.__s.sendall(packetToSend)
 
@@ -79,9 +120,6 @@ class Client(object):
             response = pingrespPacket.parseData(packet)
 
             print (response)
-
-        else:
-            print (packet)
 
     def keepAliveCount (self):
         while 1:

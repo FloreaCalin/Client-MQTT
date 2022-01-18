@@ -15,6 +15,9 @@ messageTypes = {
     'DISCONNECT': b'\xE0',
 }
 
+########################
+###  CONNECT ZONE  #####
+########################
 class Connect(object):
     def __init__(self, _id, _username, _password, _keepAlive, _cleanSession, _lastWillTopic, _lastWillMessage, _lastWillQos, _lastWillRetain):
         self.__id = _id
@@ -93,6 +96,24 @@ class Connect(object):
         finalPacket += stringConcat
         return finalPacket
 
+class Connack (object):
+    def parseData (self, packet):
+        response = packet[3]
+        if response == 0:
+            return 'Connection accepted'
+        if response == 1:
+            return 'Connection Refused, unacceptable protocol version'
+        if response == 2:
+            return 'Connection Refused, identifier rejected'
+        if response == 3:
+            return 'Connection Refused, Server unavailable'
+        if response == 4:
+            return 'Connection Refused, bad user name or password'
+        if response == 5:
+            return 'Connection Refused, not authorized'
+
+        return 'Unknown error'
+
 class Disconnect (object):
     def makePacket (self):
         packet = bytearray ()
@@ -102,21 +123,13 @@ class Disconnect (object):
 
         return packet
 
-class PingReq (object):
-    def makePacket (self):
-        packet = bytearray ()
-        packet += messageTypes['PINGREQ']
 
-        packet += b'\x00'
 
-        return packet
-
-class Pingresp (object):
-    def parseData (self, packet):
-        return 'Pingresp'
-
+########################
+###  PUBLISH ZONE  #####
+########################
 class Publish (object):
-    def __init__ (self, _topicName, _message, _Qos, _dup, _retain, packetIdentifier):
+    def __init__ (self, _topicName = '', _message = '', _Qos = 0, _dup = 0, _retain = 0, packetIdentifier = 0):
         self.__topicName = _topicName
         self.__message = _message
         self.__Qos = _Qos
@@ -139,8 +152,7 @@ class Publish (object):
         if self.__Qos == 1 or self.__Qos == 2:
             variableHeader += (self.__packetIdentifier).to_bytes(2, byteorder='big')
 
-        payload = (len(self.__message)).to_bytes(2, byteorder='big')
-        payload += (self.__message).encode ('UTF-8')
+        payload = (self.__message).encode ('UTF-8')
 
         stringConcat = variableHeader + payload
         remainingLength = (len(stringConcat)).to_bytes(1, byteorder='big')
@@ -149,17 +161,160 @@ class Publish (object):
 
         return finalPacket
 
+    def parseData (self, packet):
+        identifierFirstByte = hex (packet[0])
+        identifierSecondByte = hex (packet[1])
+
+        #identify fixed header
+        arrayFixedFirstByte = [0, 0, 0, 0]
+        putere = 3
+        poz = 0
+        byte = int(identifierFirstByte[3])
+        while (putere >= 0):
+            if (byte >= 2 ** putere):
+                arrayFixedFirstByte[poz] = 1
+                byte -= 2 ** putere
+            poz = poz + 1
+            putere = putere - 1
+
+        self.__dup = arrayFixedFirstByte[0]
+        self.__Qos = (arrayFixedFirstByte[1] << 1) | arrayFixedFirstByte[2]
+        self.__retain = arrayFixedFirstByte[3]
+
+        remainingLength = int(identifierSecondByte[2], 16) * 16 + int (identifierSecondByte[3], 16)
+
+        #topicLength
+        identifier3Byte = hex (packet[2])
+        identifier4Byte = hex (packet[3])
+
+        offset = 5
+        if (len(identifier3Byte) == 4):
+            topicLengthHigh = int (identifier3Byte[2], 16) * 16 + int (identifier3Byte[3], 16)
+        else:
+            offset -= 1
+            topicLengthHigh = int (identifier3Byte[2], 16)
+
+        if (len(identifier4Byte) == 4):
+            topicLengthLow = int (identifier4Byte[2], 16) * 16 + int (identifier4Byte[3], 16)
+        else:
+            topicLengthLow = int (identifier4Byte[2], 16)
+        topicLength = topicLengthHigh * 128 + topicLengthLow
+
+        #message and identifier
+        topicName = packet[offset : topicLength + offset]
+        message = ''
+        if (self.__Qos == 1 or self.__Qos == 2):
+            identifier3Byte = hex (packet[topicLength + offset])
+            identifier4Byte = hex (packet[topicLength + offset + 1])
+
+            if (len(identifier3Byte) == 4):
+                packetIdentifierHigh = int (identifier3Byte[2], 16) * 16 + int (identifier3Byte[3], 16)
+            else:
+                packetIdentifierHigh = int (identifier3Byte[2], 16)
+
+            if (len(identifier4Byte) == 4):
+                packetIdentifierLow = int (identifier4Byte[2], 16) * 16 + int (identifier4Byte[3], 16)
+            else:
+                packetIdentifierLow = int (identifier4Byte[2], 16)
+
+            packetIdentifier = packetIdentifierHigh * 128 + packetIdentifierLow
+            message = packet[topicLength + offset + 2 : len (packet)]
+
+            print ([topicName, message, self.__Qos, packetIdentifier])
+            return [topicName, message, self.__Qos, packetIdentifier]
+
+        message = packet[topicLength + offset : len (packet)]
+        print ([topicName, message, self.__Qos, -1])
+        return [topicName, message, self.__Qos, -1]
+
+class Puback (object):
+    def makePacket (self, _packetIdentifier):
+        packet = bytearray ()
+        packet += messageTypes['PUBACK']
+
+        packet += b'\x02'
+        packet += _packetIdentifier.to_bytes(2, byteorder='big')
+
+        return packet
+
+    def parseData (self, packet):
+        responseHigh = packet[2]
+        responseLow = packet[3]
+
+        response = (responseHigh << 2) + responseLow
+
+        return response
+
+class Pubrec (object):
+    def makePacket (self, _packetIdentifier):
+        packet = bytearray ()
+        packet += messageTypes['PUBREC']
+
+        packet += b'\x02'
+        packet += _packetIdentifier.to_bytes(2, byteorder='big')
+
+        return packet
+
+    def parseData (self, packet):
+        responseHigh = packet[2]
+        responseLow = packet[3]
+
+        response = (responseHigh << 2) + responseLow
+
+        return response
+
+class Pubrel (object):
+    def makePacket (self, _packetIdentifier):
+        packet = bytearray ()
+        packet += messageTypes['PUBREL']
+
+        packet += b'\x02'
+        packet += _packetIdentifier.to_bytes(2, byteorder='big')
+
+        return packet
+
+    def parseData (self, packet):
+        responseHigh = packet[2]
+        responseLow = packet[3]
+
+        response = (responseHigh << 2) + responseLow
+
+        return response
+
+class Pubcomp (object):
+    def parseData (self, packet):
+        responseHigh = packet[2]
+        responseLow = packet[3]
+
+        response = (responseHigh << 2) + responseLow
+
+        return response
+
+    def makePacket (self, _packetIdentifier):
+        packet = bytearray ()
+        packet += messageTypes['PUBCOMP']
+
+        packet += b'\x02'
+        packet += _packetIdentifier.to_bytes(2, byteorder='big')
+
+        return packet
+
+
+
+########################
+###  SUBSCRIBE ZONE ####
+########################
 class Subscribe (object):
-    def __init__ (self, _topicList, _QosList, _pachetIdentifier):
+    def __init__ (self, _topicList, _QosList, _packetIdentifier):
         self.__topicList = _topicList
         self.__QosList = _QosList
-        self.__pachetIdentifier = _pachetIdentifier
+        self.__packetIdentifier = _packetIdentifier
 
     def makePacket (self):
         valFixedHeader = messageTypes['SUBSCRIBE'] * 16 + 2
         finalPacket = valFixedHeader.to_bytes(1, byteorder='big')
 
-        variableHeader = self.__pachetIdentifier.to_bytes(2, byteorder='big')
+        variableHeader = self.__packetIdentifier.to_bytes(2, byteorder='big')
 
         n = len (self.__topicList)
         payload = bytearray ()
@@ -219,57 +374,20 @@ class Unsuback (object):
 
         return response
 
-class Pubrel (object):
-    def makePacket (self, _pachetIdentifier):
-        packet = bytearray ()
-        packet += messageTypes['PUBREL']
 
-        packet += b'\x02'
-        packet += _pachetIdentifier.to_bytes(2, byteorder='big')
+
+########################
+#####  PING ZONE  ######
+########################
+class PingReq (object):
+    def makePacket (self):
+        packet = bytearray ()
+        packet += messageTypes['PINGREQ']
+
+        packet += b'\x00'
 
         return packet
 
-class Pubrec (object):
+class Pingresp (object):
     def parseData (self, packet):
-        responseHigh = packet[2]
-        responseLow = packet[3]
-
-        response = (responseHigh << 2) + responseLow
-
-        return response
-
-class Connack (object):
-    def parseData (self, packet):
-        response = packet[3]
-        if response == 0:
-            return 'Connection accepted'
-        if response == 1:
-            return 'Connection Refused, unacceptable protocol version'
-        if response == 2:
-            return 'Connection Refused, identifier rejected'
-        if response == 3:
-            return 'Connection Refused, Server unavailable'
-        if response == 4:
-            return 'Connection Refused, bad user name or password'
-        if response == 5:
-            return 'Connection Refused, not authorized'
-
-        return 'Unknown error'
-
-class Puback (object):
-    def parseData (self, packet):
-        responseHigh = packet[2]
-        responseLow = packet[3]
-
-        response = (responseHigh << 2) + responseLow
-
-        return response
-
-class Pubcomp (object):
-    def parseData (self, packet):
-        responseHigh = packet[2]
-        responseLow = packet[3]
-
-        response = (responseHigh << 2) + responseLow
-
-        return response
+        return 'Pingresp'
