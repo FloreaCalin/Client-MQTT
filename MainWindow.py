@@ -203,8 +203,9 @@ class Ui_MainWindow(object):
 
     def write_msg(self):
         while 1:
-            for msg in listOfMessages:
-                self.textEdit.append(msg)
+            while (len (listOfMessages) != 0):
+                self.textEdit.append(listOfMessages[0])
+                listOfMessages.pop(0)
 
     def write_topic(self, topic_list):
         for topic in topic_list:
