@@ -122,3 +122,28 @@ class OS_Resources(object):
     def get_users(self):
         users=psutil.users()
         return users
+
+    function_name=[]
+
+    function_name.append(get_cpu_percent.__name__)
+    function_name.append(get_cpu_times.__name__)
+    function_name.append(get_cpu_times_percent.__name__)
+    function_name.append(get_cpu_count.__name__)
+    function_name.append(get_cpu_freq.__name__)
+    function_name.append(get_cpu_stats.__name__)
+    function_name.append(get_load_avg.__name__)
+    function_name.append(get_virtual_memory.__name__)
+    function_name.append(get_swap_memory.__name__)
+    function_name.append(get_disk_partitions.__name__)
+    function_name.append(get_disk_usage.__name__)
+    function_name.append(get_disk_io_counters.__name__)
+    function_name.append(get_net_io_counters.__name__)
+    function_name.append(get_net_connections.__name__)
+    function_name.append(get_sensors_temperatures.__name__)
+    function_name.append(get_sensors_fans.__name__)
+    function_name.append(get_sensors_battery.__name__)
+    function_name.append(get_boot_time.__name__)
+    function_name.append(get_users.__name__)
+
+    def get_function_name(self):
+        return self.function_name

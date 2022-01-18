@@ -1,5 +1,6 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from MainWindow import Ui_MainWindow
+from database.database_fct import connect_db, insert_bd, select_bd
 
 class Ui_FirstWindow(object):
     def setupUi(self, FirstWindow):
@@ -61,18 +62,20 @@ class Ui_FirstWindow(object):
         self.label_3.setText(_translate("FirstWindow", "Password "))
 
     def on_createAccount_button_clicked(self):
-        self.window=QtWidgets.QWidget()
-        self.ui=Ui_MainWindow()
-        self.ui.setupUi(self.window)
-        FirstWindow.hide()
-        self.window.show()
+        insert_bd(connection,self.get_username(),self.get_password())
 
     def on_logIn_button_clicked(self):
-        self.window=QtWidgets.QWidget()
-        self.ui=Ui_MainWindow()
-        self.ui.setupUi(self.window)
-        FirstWindow.hide()
-        self.window.show()
+        id = select_bd(connection,self.get_username(),self.get_password())
+        if(id is None):
+            print("None")
+        else:
+            self.window=QtWidgets.QWidget()
+            self.ui=Ui_MainWindow()
+            self.ui.setupUi(self.window)
+            FirstWindow.hide()
+            self.ui.add_elements_to_comboBox()
+            self.window.show()
+
 
     def get_username(self):
         username=self.lineEdit.text()
@@ -82,11 +85,13 @@ class Ui_FirstWindow(object):
         password=self.lineEdit_2.text()
         return password
 
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     FirstWindow = QtWidgets.QWidget()
     ui = Ui_FirstWindow()
     ui.setupUi(FirstWindow)
+    connection=connect_db()
     FirstWindow.show()
     sys.exit(app.exec())
