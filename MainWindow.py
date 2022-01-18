@@ -4,18 +4,20 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 from Back.client import listOfMessages
 from ConnectWindow import Ui_ConnectWindow
-from SubscribeWindow import Ui_SubscribeWindow
+from SubscribeWindow import Ui_SubscribeWindow, subscriptions_list
 from UnsubscribeWindow import Ui_UnsubscribeWindow
 from OsResources.OsResources import OS_Resources
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow, id, user, password):
+    def setupUi(self, MainWindow, client):
         self.__threadForViewMessages = threading.Thread (target = self.write_msg, args = ())
         self.__threadForViewMessages.start()
 
-        self.id = id
-        self.user = user
-        self.password = password
+        self.__threadForWriteTopics = threading.Thread(target=self.write_subscriptions, args=())
+        self.__threadForWriteTopics.start()
+
+        self.client=client
+
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(731, 611)
         font = QtGui.QFont("bold")
@@ -174,13 +176,13 @@ class Ui_MainWindow(object):
     def on_connect_button_clicked(self):
         self.window=QtWidgets.QWidget()
         self.ui=Ui_ConnectWindow()
-        self.ui.setupUi(self.window, self.id, self.user, self.password)
+        self.ui.setupUi(self.window, self.client)
         self.window.show()
 
     def on_addNewTopicSubscription_button_clicked(self):
         self.window=QtWidgets.QWidget()
         self.ui=Ui_SubscribeWindow()
-        self.ui.setupUi(self.window)
+        self.ui.setupUi(self.window, self.client)
         self.window.show()
 
     def on_removeATopicSubscription_button_clicked(self):
@@ -206,6 +208,12 @@ class Ui_MainWindow(object):
             while (len (listOfMessages) != 0):
                 self.textEdit.append(listOfMessages[0])
                 listOfMessages.pop(0)
+
+    def write_subscriptions(self):
+        while 1:
+            while (len (subscriptions_list) != 0):
+                self.textEdit_2.append(subscriptions_list[0])
+                subscriptions_list.pop(0)
 
     def write_topic(self, topic_list):
         for topic in topic_list:

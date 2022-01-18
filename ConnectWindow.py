@@ -3,10 +3,10 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from Back.client import getConnectResponse, Client
 
 class Ui_ConnectWindow(object):
-    def setupUi(self, ConnectWindow, id, user, password):
-        self.id = id
-        self.user = user
-        self.password = password
+    def setupUi(self, ConnectWindow, client):
+
+        self.client=client
+
         ConnectWindow.setObjectName("ConnectWindow")
         ConnectWindow.resize(337, 445)
         self.label = QtWidgets.QLabel(ConnectWindow)
@@ -200,11 +200,11 @@ class Ui_ConnectWindow(object):
         if lastWillRetain == False:
             lastWillRetain = None
 
-        client = Client (self.id, self.user, self.password)
-        client.connect (host, port, keepAlive, cleanSession, lastWillTopic, lastWillMessage,
+
+        self.client.connect (host, port, keepAlive, cleanSession, lastWillTopic, lastWillMessage,
                          lastWillQos, lastWillRetain)
 
-        client.subscribe(['testtopic/foarte/interesant/poate/merge/#'], [2])
+        #client.subscribe(['testtopic/foarte/interesant/poate/merge/#'], [2])
 
         self.textEdit.setText(getConnectResponse ())
 

@@ -1,6 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from MainWindow import Ui_MainWindow
 from database.database_fct import connect_db, insert_bd, select_bd
+from Back.client import Client
 
 class Ui_FirstWindow(object):
     def setupUi(self, FirstWindow):
@@ -69,9 +70,10 @@ class Ui_FirstWindow(object):
         if(id is None):
             print("None")
         else:
+            client=Client(id, self.get_username(), self.get_password())
             self.window=QtWidgets.QWidget()
             self.ui=Ui_MainWindow()
-            self.ui.setupUi(self.window, id, self.get_username(), self.get_password())
+            self.ui.setupUi(self.window, client)
             FirstWindow.hide()
             self.ui.add_elements_to_comboBox()
             self.window.show()
