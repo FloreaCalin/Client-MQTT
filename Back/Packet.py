@@ -187,11 +187,10 @@ class Publish (object):
         identifier3Byte = hex (packet[2])
         identifier4Byte = hex (packet[3])
 
-        offset = 5
+        offset = 4
         if (len(identifier3Byte) == 4):
             topicLengthHigh = int (identifier3Byte[2], 16) * 16 + int (identifier3Byte[3], 16)
         else:
-            offset -= 1
             topicLengthHigh = int (identifier3Byte[2], 16)
 
         if (len(identifier4Byte) == 4):
