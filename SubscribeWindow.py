@@ -1,8 +1,12 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+subscriptions_list=[]
 
 class Ui_SubscribeWindow(object):
-    def setupUi(self, SubscribeWindow):
+    def setupUi(self, SubscribeWindow, client):
+
+        self.client=client
+
         SubscribeWindow.setObjectName("SubscribeWindow")
         SubscribeWindow.resize(341, 195)
         self.label = QtWidgets.QLabel(SubscribeWindow)
@@ -42,6 +46,8 @@ class Ui_SubscribeWindow(object):
         self.pushButton.setGeometry(QtCore.QRect(160, 150, 161, 21))
         self.pushButton.setObjectName("pushButton")
 
+        self.pushButton.clicked.connect(lambda: self.on_subscribe_button())
+
         self.retranslateUi(SubscribeWindow)
         QtCore.QMetaObject.connectSlotsByName(SubscribeWindow)
 
@@ -63,6 +69,12 @@ class Ui_SubscribeWindow(object):
     def get_qos(self):
         qos=self.comboBox.currentText()
         return qos
+
+    def on_subscribe_button(self):
+        topic=self.get_topic()
+        qos=self.get_qos()
+        subscriptions_list.append('topic: ' + topic +'\nQoS: ' + qos)
+        self.client.subscribe([topic],[int(qos)])
 
 if __name__ == "__main__":
     import sys
