@@ -77,6 +77,9 @@ class Ui_MainWindow(object):
         self.pushButton = QtWidgets.QPushButton(self.frame)
         self.pushButton.setGeometry(QtCore.QRect(310, 160, 91, 21))
         self.pushButton.setObjectName("pushButton")
+
+        self.pushButton.clicked.connect(lambda: self.on_publish_button_clicked())
+
         self.comboBox_2 = QtWidgets.QComboBox(self.frame)
         self.comboBox_2.setGeometry(QtCore.QRect(30, 90, 251, 22))
         self.comboBox_2.setObjectName("comboBox_2")
@@ -190,6 +193,13 @@ class Ui_MainWindow(object):
         self.ui=Ui_UnsubscribeWindow()
         self.ui.setupUi(self.window, self.client)
         self.window.show()
+
+    def on_publish_button_clicked(self):
+        topic=self.get_topic()
+        qos=self.get_qos()
+        qos_int=int(qos)
+        message=self.get_message()
+        self.client.publish(topic,message,qos_int,0,0)
 
     def get_topic(self):
         topic = self.lineEdit.text()
