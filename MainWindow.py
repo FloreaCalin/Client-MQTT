@@ -97,6 +97,9 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.label_7.setFont(font)
         self.label_7.setObjectName("label_7")
+        self.checkBox = QtWidgets.QCheckBox(self.frame)
+        self.checkBox.setGeometry(QtCore.QRect(330, 60, 51, 20))
+        self.checkBox.setObjectName("checkBox")
         self.frame_2 = QtWidgets.QFrame(MainWindow)
         self.frame_2.setGeometry(QtCore.QRect(470, 10, 251, 281))
         self.frame_2.setStyleSheet("#frame_2 { border: 1px solid lightGray; }")
@@ -170,6 +173,7 @@ class Ui_MainWindow(object):
         self.pushButton.setText(_translate("MainWindow", "Publish"))
         self.pushButton_5.setText(_translate("MainWindow", "Choose"))
         self.label_7.setText(_translate("MainWindow", "Choose OS Resource"))
+        self.checkBox.setText(_translate("MainWindow", "Retain"))
         self.label_5.setText(_translate("MainWindow", "Subscriptions"))
         self.pushButton_2.setText(_translate("MainWindow", "Add New Topic Subscription"))
         self.pushButton_4.setText(_translate("MainWindow", "Remove a Topic Subscription"))
@@ -199,7 +203,8 @@ class Ui_MainWindow(object):
         qos=self.get_qos()
         qos_int=int(qos)
         message=self.get_message()
-        self.client.publish(topic,message,qos_int,0,0)
+        retain=self.get_retain()
+        self.client.publish(topic,message,qos_int,0,retain)
 
     def get_topic(self):
         topic = self.lineEdit.text()
@@ -212,6 +217,13 @@ class Ui_MainWindow(object):
     def get_qos(self):
         qos = self.comboBox.currentText()
         return qos
+
+    def get_retain(self):
+        retain=self.checkBox.isChecked()
+        if(retain is True):
+            return 1
+        else:
+            return 0
 
     def write_msg(self):
         while 1:
@@ -323,7 +335,8 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QWidget()
     ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
+    client=None
+    ui.setupUi(MainWindow, client)
     ui.add_elements_to_comboBox()
     MainWindow.show()
     sys.exit(app.exec())
