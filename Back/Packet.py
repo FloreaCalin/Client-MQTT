@@ -162,6 +162,7 @@ class Publish (object):
         return finalPacket
 
     def parseData (self, packet):
+        print (packet)
         identifierFirstByte = hex (packet[0])
         identifierSecondByte = hex (packet[1])
 
@@ -181,7 +182,10 @@ class Publish (object):
         self.__Qos = (arrayFixedFirstByte[1] << 1) | arrayFixedFirstByte[2]
         self.__retain = arrayFixedFirstByte[3]
 
-        remainingLength = int(identifierSecondByte[2], 16) * 16 + int (identifierSecondByte[3], 16)
+        if len (identifierSecondByte) == 4:
+            remainingLength = (int(identifierSecondByte[2], 16) << 4) + int (identifierSecondByte[3], 16)
+        else:
+            remainingLength = int(identifierSecondByte[2], 16)
 
         #topicLength
         identifier3Byte = hex (packet[2])
@@ -189,41 +193,39 @@ class Publish (object):
 
         offset = 4
         if (len(identifier3Byte) == 4):
-            topicLengthHigh = int (identifier3Byte[2], 16) * 16 + int (identifier3Byte[3], 16)
+            topicLengthHigh = (int (identifier3Byte[2], 16) << 4) + int (identifier3Byte[3], 16)
         else:
-            topicLengthHigh = int (identifier3Byte[2], 16)
+            topicLengthHigh = (int (identifier3Byte[2], 16))
 
         if (len(identifier4Byte) == 4):
-            topicLengthLow = int (identifier4Byte[2], 16) * 16 + int (identifier4Byte[3], 16)
+            topicLengthLow = (int (identifier4Byte[2], 16) << 4) + int (identifier4Byte[3], 16)
         else:
-            topicLengthLow = int (identifier4Byte[2], 16)
-        topicLength = topicLengthHigh * 128 + topicLengthLow
+            topicLengthLow = (int (identifier4Byte[2], 16))
+        topicLength = (topicLengthHigh << 8) + topicLengthLow
 
         #message and identifier
         topicName = packet[offset : topicLength + offset]
-        message = ''
+
         if (self.__Qos == 1 or self.__Qos == 2):
             identifier3Byte = hex (packet[topicLength + offset])
             identifier4Byte = hex (packet[topicLength + offset + 1])
 
             if (len(identifier3Byte) == 4):
-                packetIdentifierHigh = int (identifier3Byte[2], 16) * 16 + int (identifier3Byte[3], 16)
+                packetIdentifierHigh = (int (identifier3Byte[2], 16) << 4) + int (identifier3Byte[3], 16)
             else:
-                packetIdentifierHigh = int (identifier3Byte[2], 16)
+                packetIdentifierHigh = (int (identifier3Byte[2], 16))
 
             if (len(identifier4Byte) == 4):
-                packetIdentifierLow = int (identifier4Byte[2], 16) * 16 + int (identifier4Byte[3], 16)
+                packetIdentifierLow = (int (identifier4Byte[2], 16) << 4) + int (identifier4Byte[3], 16)
             else:
-                packetIdentifierLow = int (identifier4Byte[2], 16)
+                packetIdentifierLow = (int (identifier4Byte[2], 16))
 
-            packetIdentifier = packetIdentifierHigh * 128 + packetIdentifierLow
+            packetIdentifier = (packetIdentifierHigh << 8) + packetIdentifierLow
             message = packet[topicLength + offset + 2 : len (packet)]
 
-            print ([topicName, message, self.__Qos, packetIdentifier])
             return [topicName, message, self.__Qos, packetIdentifier]
 
         message = packet[topicLength + offset : len (packet)]
-        print ([topicName, message, self.__Qos, -1])
         return [topicName, message, self.__Qos, -1]
 
 class Puback (object):
@@ -240,7 +242,7 @@ class Puback (object):
         responseHigh = packet[2]
         responseLow = packet[3]
 
-        response = (responseHigh << 2) + responseLow
+        response = (int(responseHigh) << 8) + int(responseLow)
 
         return response
 
@@ -258,7 +260,7 @@ class Pubrec (object):
         responseHigh = packet[2]
         responseLow = packet[3]
 
-        response = (responseHigh << 2) + responseLow
+        response = (int(responseHigh) << 8) + int(responseLow)
 
         return response
 
@@ -276,7 +278,7 @@ class Pubrel (object):
         responseHigh = packet[2]
         responseLow = packet[3]
 
-        response = (responseHigh << 2) + responseLow
+        response = (int(responseHigh) << 8) + int(responseLow)
 
         return response
 
@@ -285,7 +287,7 @@ class Pubcomp (object):
         responseHigh = packet[2]
         responseLow = packet[3]
 
-        response = (responseHigh << 2) + responseLow
+        response = (int(responseHigh) << 8) + int(responseLow)
 
         return response
 
@@ -328,7 +330,6 @@ class Subscribe (object):
 
         finalPacket += remainingLength + stringConcat
 
-        print (finalPacket)
         return finalPacket
 
 class Subpack (object):
@@ -336,7 +337,7 @@ class Subpack (object):
         responseHigh = packet[2]
         responseLow = packet[3]
 
-        response = (responseHigh << 2) + responseLow
+        response = (int(responseHigh) << 8) + int(responseLow)
 
         return response
 
@@ -362,7 +363,6 @@ class Unsubscribe (object):
 
         finalPacket += remainingLength + stringConcat
 
-        print(finalPacket)
         return finalPacket
 
 class Unsuback (object):
@@ -370,7 +370,7 @@ class Unsuback (object):
         responseHigh = packet[2]
         responseLow = packet[3]
 
-        response = (responseHigh << 2) + responseLow
+        response = (int(responseHigh) << 8) + int(responseLow)
 
         return response
 

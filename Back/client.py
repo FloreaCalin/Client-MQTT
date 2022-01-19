@@ -26,7 +26,7 @@ class Client(object):
     #threads for get, interpret, messages and handle keep alive
     def loopGetMessages (self, s):
         while 1:
-            message = s.recv (2048)
+            message = s.recv (1024)
             if message:
                 self.__queueMessages.append(message)
 
@@ -65,6 +65,7 @@ class Client(object):
                 listOfMessages.append('topic: ' + topic[2 : len (topic) - 1] + '\nmessage: ' + message[2 : len (message) - 1])
 
                 self.__s.sendall(packetToSend)
+                self.resetKeepAlive()
 
             if (response[2] == 2): #QOS = 2
                 pubrecPacket = Pubrec ()
@@ -73,8 +74,9 @@ class Client(object):
                 topic = str (response[0])
                 message = str (response[1])
                 listOfMessages.append ('topic: ' + topic[2 : len (topic) - 1] + '\nmessage: ' + message[2 : len (message) - 1])
-
+                print ("send pubrec for: " + str (response[3]))
                 self.__s.sendall(packetToSend)
+                self.resetKeepAlive()
 
         elif identifierFirstByte == '0x40' and identifierSecondByte == '0x2': #puback
             pubackPacket = Puback ()
@@ -90,6 +92,7 @@ class Client(object):
             packetToSend = pubrelPacket.makePacket(responseID)
 
             self.__s.sendall(packetToSend)
+            self.resetKeepAlive()
 
         elif identifierFirstByte == '0x62' and identifierSecondByte == '0x2': #pubrel
             pubrelPacket = Pubrel ()
@@ -98,7 +101,9 @@ class Client(object):
             pubcompPacket = Pubcomp ()
             packetToSend = pubcompPacket.makePacket(responseID)
 
+            print ("send pubcomp for: " + str (responseID))
             self.__s.sendall(packetToSend)
+            self.resetKeepAlive()
 
         elif identifierFirstByte == '0x70' and identifierSecondByte == '0x2': #pubcomp
             pubcompPacket = Pubcomp ()
@@ -155,7 +160,7 @@ class Client(object):
 
         packet = connPacket.makePacket()
         self.__s.sendall(packet)
-        self.__keepAliveCounter = 0 #send message, reset keep alive time
+        self.resetKeepAlive() #send message, reset keep alive time
 
         #message = self.__s.recv(1024)
         #print (message)
@@ -167,7 +172,7 @@ class Client(object):
         packet = publishPacket.makePacket()
         #print(packet)
         self.__s.sendall(packet)
-        self.__keepAliveCounter = 0 #send message, reset keep alive time
+        self.resetKeepAlive() #send message, reset keep alive time
 
         #message = self.__s.recv(1024)
         #print (message)
@@ -178,7 +183,7 @@ class Client(object):
 
         packet = dissPacket.makePacket()
         self.__s.sendall(packet)
-        self.__keepAliveCounter = 0 #send message, reset keep alive time
+        self.resetKeepAlive() #send message, reset keep alive time
 
         #message = self.__s.recv(1024)
         #print (message)
@@ -188,7 +193,7 @@ class Client(object):
 
         packet = pingPacket.makePacket()
         self.__s.sendall(packet)
-        self.__keepAliveCounter = 0 #send message, reset keep alive time
+        self.resetKeepAlive() #send message, reset keep alive time
 
         #message = self.__s.recv(1024)
         #print (message)
@@ -199,7 +204,7 @@ class Client(object):
 
         packet = subPacket.makePacket()
         self.__s.sendall(packet)
-        self.__keepAliveCounter = 0 #send message, reset keep alive time
+        self.resetKeepAlive() #send message, reset keep alive time
         #print (packet)
 
         #message = self.__s.recv(1024)
@@ -212,8 +217,12 @@ class Client(object):
         packet = unSubPacket.makePacket()
 
         self.__s.sendall(packet)
-        self.__keepAliveCounter = 0 #send message, reset keep alive time
+        self.resetKeepAlive() #send message, reset keep alive time
         #print (packet)
 
         #message = self.__s.recv(1024)
         #print (message)
+
+    def resetKeepAlive (self):
+        self.__keepAliveCounter = 0
+
