@@ -1,6 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 subscriptions_list=[]
+subscriptions_list_copy=[]
 
 class Ui_SubscribeWindow(object):
     def setupUi(self, SubscribeWindow, client):
@@ -74,6 +75,7 @@ class Ui_SubscribeWindow(object):
         topic=self.get_topic()
         qos=self.get_qos()
         subscriptions_list.append('topic: ' + topic +'\nQoS: ' + qos)
+        subscriptions_list_copy.append('topic: ' + topic +'\nQoS: ' + qos)
         self.client.subscribe([topic],[int(qos)])
 
 if __name__ == "__main__":

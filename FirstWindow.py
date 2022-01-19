@@ -74,7 +74,7 @@ class Ui_FirstWindow(object):
             self.window=QtWidgets.QWidget()
             self.ui=Ui_MainWindow()
             self.ui.setupUi(self.window, client)
-            FirstWindow.hide()
+            FirstWindow.close()
             self.ui.add_elements_to_comboBox()
             self.window.show()
 

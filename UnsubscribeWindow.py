@@ -1,7 +1,12 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from SubscribeWindow import subscriptions_list_copy, subscriptions_list
+
 class Ui_UnsubscribeWindow(object):
-    def setupUi(self, UnsubscribeWindow):
+    def setupUi(self, UnsubscribeWindow, client):
+
+        self.client=client
+
         UnsubscribeWindow.setObjectName("UnsubscribeWindow")
         UnsubscribeWindow.resize(400, 191)
         self.label = QtWidgets.QLabel(UnsubscribeWindow)
@@ -26,6 +31,9 @@ class Ui_UnsubscribeWindow(object):
         self.pushButton = QtWidgets.QPushButton(UnsubscribeWindow)
         self.pushButton.setGeometry(QtCore.QRect(130, 150, 121, 23))
         self.pushButton.setObjectName("pushButton")
+
+        self.pushButton.clicked.connect(lambda: self.on_unsubscribe_button())
+
         self.retranslateUi(UnsubscribeWindow)
         QtCore.QMetaObject.connectSlotsByName(UnsubscribeWindow)
 
@@ -39,6 +47,19 @@ class Ui_UnsubscribeWindow(object):
     def get_topic(self):
         topic = self.lineEdit.text()
         return topic
+
+    def on_unsubscribe_button(self):
+        topic = self.get_topic()
+        self.client.unsubscribe([topic])
+        res='topic: '+ topic +'\nQoS: '
+        index = 0
+        for sir in subscriptions_list_copy:
+            if res in sir:
+                subscriptions_list_copy.pop(index)
+            index += 1
+
+        for ceva in subscriptions_list_copy:
+            subscriptions_list.append(ceva)
 
 if __name__ == "__main__":
     import sys
