@@ -204,6 +204,11 @@ class Ui_ConnectWindow(object):
         self.client.connect (host, port, keepAlive, cleanSession, lastWillTopic, lastWillMessage,
                          lastWillQos, lastWillRetain)
 
+        if lastWillRetain is None:
+            lastWillRetain=0
+        else:
+            lastWillRetain=1
+
         #client.subscribe(['testtopic/foarte/interesant/poate/merge/#'], [2])
 
         self.textEdit.setText(getConnectResponse ())
