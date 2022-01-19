@@ -362,6 +362,7 @@ class Unsubscribe (object):
 
         finalPacket += remainingLength + stringConcat
 
+        print(finalPacket)
         return finalPacket
 
 class Unsuback (object):

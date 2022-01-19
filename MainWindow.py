@@ -188,7 +188,7 @@ class Ui_MainWindow(object):
     def on_removeATopicSubscription_button_clicked(self):
         self.window=QtWidgets.QWidget()
         self.ui=Ui_UnsubscribeWindow()
-        self.ui.setupUi(self.window)
+        self.ui.setupUi(self.window, self.client)
         self.window.show()
 
     def get_topic(self):
