@@ -1,5 +1,5 @@
 import cx_Oracle
-#cx_Oracle.init_oracle_client(lib_dir="/Users/floreac/Downloads/instantclient_19_8")
+cx_Oracle.init_oracle_client(lib_dir="/Users/floreac/Downloads/instantclient_19_8")
 #import constants
 
 USER="bd149"
