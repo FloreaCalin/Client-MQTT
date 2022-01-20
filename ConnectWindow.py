@@ -2,10 +2,11 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 from Back.client import getConnectResponse, Client
 
+
 class Ui_ConnectWindow(object):
     def setupUi(self, ConnectWindow, client):
 
-        self.client=client
+        self.client = client
 
         ConnectWindow.setObjectName("ConnectWindow")
         ConnectWindow.resize(337, 445)
@@ -119,12 +120,11 @@ class Ui_ConnectWindow(object):
         self.textEdit = QtWidgets.QTextEdit(ConnectWindow)
         self.textEdit.setGeometry(QtCore.QRect(170, 320, 151, 61))
 
-
         self.textEdit.setObjectName("textEdit")
 
-        self.pushButton.clicked.connect(lambda:self.insert_text())
+        self.pushButton.clicked.connect(lambda: self.insert_text())
 
-        self.pushButton_2.clicked.connect(lambda:self.on_disconnect_button_clicked())
+        self.pushButton_2.clicked.connect(lambda: self.on_disconnect_button_clicked())
 
         self.retranslateUi(ConnectWindow)
         QtCore.QMetaObject.connectSlotsByName(ConnectWindow)
@@ -172,20 +172,20 @@ class Ui_ConnectWindow(object):
         return last_will_qos
 
     def get_clean_session(self):
-        clean_session=self.checkBox.isChecked()
+        clean_session = self.checkBox.isChecked()
         return clean_session
 
     def get_last_will_retain(self):
-        last_will_retain=self.checkBox_2.isChecked()
+        last_will_retain = self.checkBox_2.isChecked()
         return last_will_retain
 
     def insert_text(self):
         host = self.get_host()
         port = int(self.get_port())
-        keepAlive = int (self.get_keep_alive())
+        keepAlive = int(self.get_keep_alive())
         lastWillMessage = self.get_last_will_message()
         lastWillTopic = self.get_last_will_topic()
-        lastWillQos = int (self.get_last_will_qos())
+        lastWillQos = int(self.get_last_will_qos())
         cleanSession = self.get_clean_session()
         lastWillRetain = self.get_last_will_retain()
 
@@ -200,21 +200,20 @@ class Ui_ConnectWindow(object):
         if lastWillRetain == False:
             lastWillRetain = None
 
-
-        self.client.connect (host, port, keepAlive, cleanSession, lastWillTopic, lastWillMessage,
-                         lastWillQos, lastWillRetain)
+        self.client.connect(host, port, keepAlive, cleanSession, lastWillTopic, lastWillMessage,
+                            lastWillQos, lastWillRetain)
 
         if lastWillRetain is None:
-            lastWillRetain=0
+            lastWillRetain = 0
         else:
-            lastWillRetain=1
+            lastWillRetain = 1
 
-        #client.subscribe(['testtopic/foarte/interesant/poate/merge/#'], [2])
+        # client.subscribe(['testtopic/foarte/interesant/poate/merge/#'], [2])
 
-        self.textEdit.setText(getConnectResponse ())
+        self.textEdit.setText(getConnectResponse())
 
     def on_disconnect_button_clicked(self):
-        msg="Disconnected"
+        msg = "Disconnected"
         self.textEdit.setText(msg)
 
 
@@ -222,6 +221,7 @@ connection_msg = "Connection accepted"
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     ConnectWindow = QtWidgets.QWidget()
     ui = Ui_ConnectWindow()

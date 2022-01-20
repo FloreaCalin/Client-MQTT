@@ -170,7 +170,7 @@ class Publish (object):
         arrayFixedFirstByte = [0, 0, 0, 0]
         putere = 3
         poz = 0
-        byte = int(identifierFirstByte[3])
+        byte = int(identifierFirstByte[3], 16)
         while (putere >= 0):
             if (byte >= 2 ** putere):
                 arrayFixedFirstByte[poz] = 1
