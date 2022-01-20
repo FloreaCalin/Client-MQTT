@@ -6,14 +6,44 @@ from datetime import datetime
 from Back.Packet import Connect, Disconnect, PingReq, Publish, Subscribe, Unsubscribe, Pubrel, Connack, Puback, Pubrec, \
     Pubcomp, Subpack, Unsuback, Pingresp
 
+#data for front interface
 listOfMessages = []
+
+flagChangeSubscribeList = False
+listOfSubscribes = [[], []]
+
+flagConnectResponse = False
 connectResponse = ''
+
+#maps for handle response from server
 mapForReceivedMessagesQOS2 = {}
 mapForPublishQ0SBig = {}
+mapForSubscribe = {}
+mapForUnsubscribe = {}
+
+#send data to front-end
+def getlistOfSubscribes():
+    listforReturn = [[], []]
+    listforReturn[0] = listOfSubscribes[0].copy()
+    listforReturn[1] = listOfSubscribes[1].copy()
+
+    return listforReturn
 
 def getConnectResponse():
     return connectResponse
 
+#handle flags for front end
+def getFlagChangeSubscribeList():
+    return flagChangeSubscribeList
+
+def setFlagChangeSubscribeList(flagNewValue):
+    flagChangeSubscribeList = flagNewValue
+
+def getFlagConnectResponse():
+    return flagConnectResponse
+
+def setFlagConnectResponse(flagNewValue):
+    flagConnectResponse = flagNewValue
 
 class Client(object):
     # init data
@@ -31,7 +61,7 @@ class Client(object):
     # threads for get, interpret, messages and handle keep alive
     def loopGetMessages(self, s):
         while 1:
-            message = s.recv(1024)
+            message = s.recv(2048)
             if message:
                 self.__queueMessages.append(message)
 
@@ -76,6 +106,31 @@ class Client(object):
                                                                   currentElement[2], currentElement[3],
                                                                   1, currentElement[5], currentElement[6]]
 
+    def loopforSubscribe(self):
+        while 1:
+            FMT = '%H:%M:%S'
+            now = datetime.now()
+            current_time = str(now.hour) + ':' + str(now.minute) + ':' + str(now.second)
+
+            if len(list(mapForSubscribe.keys())) > 0:
+                firstElement = list(mapForSubscribe.keys())[0]
+                currentElement = mapForSubscribe[firstElement]
+                tdelta = datetime.strptime(current_time, FMT) - datetime.strptime(currentElement[2], FMT)
+                if tdelta.total_seconds() >= self.__keepAliveMaxTime:
+                    mapForSubscribe.pop(firstElement)
+
+    def loopforUnsubscribe(self):
+        while 1:
+            FMT = '%H:%M:%S'
+            now = datetime.now()
+            current_time = str(now.hour) + ':' + str(now.minute) + ':' + str(now.second)
+
+            if len(list(mapForUnsubscribe.keys())) > 0:
+                firstElement = list(mapForUnsubscribe.keys())[0]
+                currentElement = mapForUnsubscribe[firstElement]
+                tdelta = datetime.strptime(current_time, FMT) - datetime.strptime(currentElement[1], FMT)
+                if tdelta.total_seconds() >= self.__keepAliveMaxTime:
+                    mapForUnsubscribe.pop(firstElement)
 
     def __identifyPacket(self, packet):
         identifierFirstByte = hex(packet[0])
@@ -85,7 +140,7 @@ class Client(object):
             connackPacket = Connack()
             response = connackPacket.parseData(packet)
             connectResponse = response
-            print(response)
+            setFlagConnectResponse(True)
 
         elif identifierFirstByte[2] == '3':  # publish back
             publishPacket = Publish()
@@ -122,7 +177,6 @@ class Client(object):
                 current_timeReceive = now.strftime(FMT)
 
                 mapForReceivedMessagesQOS2[response[3]] = [messageToSent, current_timeReceive]
-                print("send pubrec for: " + str(response[3]))
                 self.__s.sendall(packetToSend)
                 self.resetKeepAlive()
 
@@ -153,7 +207,6 @@ class Client(object):
             listOfMessages.append(mapForReceivedMessagesQOS2[responseID][0])
             mapForReceivedMessagesQOS2.pop(responseID)
 
-            print("send pubcomp for: " + str(responseID))
 
             self.__s.sendall(packetToSend)
             self.resetKeepAlive()
@@ -169,15 +222,39 @@ class Client(object):
             subpackPacket = Subpack()
             responseID = subpackPacket.parseData(packet)
 
+            length = len(mapForSubscribe[responseID][0])
+
+            for i in range(0, length):
+                listOfSubscribes[0].append(mapForSubscribe[responseID][0][i])
+                listOfSubscribes[1].append(mapForSubscribe[responseID][1][i])
+            mapForSubscribe.pop(responseID)
+
+            setFlagChangeSubscribeList(True)
             print("Subscribe cu succes la id ul: " + str(responseID))
 
         elif identifierFirstByte == '0xb0':  # unsuback
             unsubackPacket = Unsuback()
             responseID = unsubackPacket.parseData(packet)
 
+            length = len(listOfSubscribes[0])
+            listForDelete = []
+
+            for i in range(0, length):
+                lenthMap = len (mapForUnsubscribe[responseID][0])
+                for j in range(0, lenthMap):
+                    if listOfSubscribes[0][i] == mapForUnsubscribe[responseID][0][j]:
+                        listForDelete.append(i)
+
+            listForDeleteFinal = set(listForDelete)
+
+            for element in listForDeleteFinal:
+                listOfSubscribes[0].pop(element)
+                listOfSubscribes[1].pop(element)
+
+            setFlagChangeSubscribeList(True)
             print("Unsubscribe la id ul:" + str(responseID))
 
-        elif (identifierFirstByte == '0xd0'):
+        elif identifierFirstByte == '0xd0':
             pingrespPacket = Pingresp()
 
             response = pingrespPacket.parseData(packet)
@@ -188,7 +265,7 @@ class Client(object):
         while 1:
             time.sleep(1)
             self.__keepAliveCounter += 1
-            if (self.__keepAliveCounter >= self.__keepAliveMaxTime):
+            if self.__keepAliveCounter >= self.__keepAliveMaxTime:
                 self.__sendPing()
 
     def __sendPing(self):
@@ -215,8 +292,14 @@ class Client(object):
         self.__threadForHandleMessagesreceivedQOS2.start()
 
         self.__threadHandleForPublishQ0SBig = threading.Thread(target=self.loopHandleForPublishQ0SBig,
-                                                                      args=())
+                                                               args=())
         self.__threadHandleForPublishQ0SBig.start()
+
+        self.__threadForHandleSubscribe = threading.Thread(target=self.loopforSubscribe, args=())
+        self.__threadForHandleSubscribe.start()
+
+        self.__threadForHandleUnsubscribe = threading.Thread(target=self.loopforUnsubscribe, args=())
+        self.__threadForHandleUnsubscribe.start()
 
         connPacket = Connect(self.__id, self.__username, self.__password, _keepAlive, _cleanSession,
                              _lastWillTopic, _lastWillMessage, _lastWillQos, _lastWillRetain)
@@ -229,7 +312,7 @@ class Client(object):
         # print (message)
 
     def publish(self, _topicName, _message, _Qos, _dup, _retain):
-        self.__packetIdentifier += 1  # increase packet identidier
+        self.increasePacketIdentifier()  # increase packet identidier
         publishPacket = Publish(_topicName, _message, _Qos, _dup, _retain, self.__packetIdentifier)
 
         packet = publishPacket.makePacket()
@@ -240,7 +323,8 @@ class Client(object):
             now = datetime.now()
             FMT = '%H:%M:%S'
             current_timeSend = now.strftime(FMT)
-            mapForPublishQ0SBig[self.__packetIdentifier] = [_message, current_timeSend, _topicName, _Qos, _dup, _retain, self.__packetIdentifier]
+            mapForPublishQ0SBig[self.__packetIdentifier] = [_message, current_timeSend, _topicName, _Qos, _dup, _retain,
+                                                            self.__packetIdentifier]
 
         self.resetKeepAlive()  # send message, reset keep alive time
 
@@ -248,7 +332,7 @@ class Client(object):
         # print (message)
 
     def disconnect(self):
-        self.__packetIdentifier += 1  # increase packet identidier
+        self.increasePacketIdentifier()  # increase packet identidier
         dissPacket = Disconnect()
 
         packet = dissPacket.makePacket()
@@ -269,11 +353,18 @@ class Client(object):
         # print (message)
 
     def subscribe(self, _topicList, _QosList):
-        self.__packetIdentifier += 1  # increase packet identidier
+        self.increasePacketIdentifier()  # increase packet identidier
         subPacket = Subscribe(_topicList, _QosList, self.__packetIdentifier)
 
         packet = subPacket.makePacket()
         self.__s.sendall(packet)
+
+        # save subscribe on map to wait for response
+        now = datetime.now()
+        FMT = '%H:%M:%S'
+        current_timeSend = now.strftime(FMT)
+        mapForSubscribe[self.__packetIdentifier] = [_topicList, _QosList, current_timeSend]
+
         self.resetKeepAlive()  # send message, reset keep alive time
         # print (packet)
 
@@ -281,10 +372,16 @@ class Client(object):
         # print (message)
 
     def unsubscribe(self, _topicList):
-        self.__packetIdentifier += 1  # increase packet identidier
+        self.increasePacketIdentifier()  # increase packet identidier
         unSubPacket = Unsubscribe(_topicList, self.__packetIdentifier)
 
         packet = unSubPacket.makePacket()
+
+        # save unsubscribe on map to wait for response
+        now = datetime.now()
+        FMT = '%H:%M:%S'
+        current_timeSend = now.strftime(FMT)
+        mapForUnsubscribe[self.__packetIdentifier] = [_topicList, current_timeSend]
 
         self.__s.sendall(packet)
         self.resetKeepAlive()  # send message, reset keep alive time
@@ -295,3 +392,8 @@ class Client(object):
 
     def resetKeepAlive(self):
         self.__keepAliveCounter = 0
+
+    def increasePacketIdentifier(self):
+        if self.__packetIdentifier == (1 << 16) - 1:
+            self.__packetIdentifier = 0
+        self.__packetIdentifier += 1
