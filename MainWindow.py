@@ -2,7 +2,7 @@ import threading
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-from Back.client import listOfMessages
+from Back.client import listOfMessages, getFlagChangeSubscribeList, setFlagChangeSubscribeList, getlistOfSubscribes
 from ConnectWindow import Ui_ConnectWindow
 from SubscribeWindow import Ui_SubscribeWindow, subscriptions_list
 from UnsubscribeWindow import Ui_UnsubscribeWindow
@@ -13,8 +13,11 @@ class Ui_MainWindow(object):
         self.__threadForViewMessages = threading.Thread (target = self.write_msg, args = ())
         self.__threadForViewMessages.start()
 
-        self.__threadForWriteTopics = threading.Thread(target=self.write_subscriptions, args=())
-        self.__threadForWriteTopics.start()
+        #self.__threadForWriteTopics = threading.Thread(target=self.write_subscriptions, args=())
+        #self.__threadForWriteTopics.start()
+
+        self.__threadForSetsubscriptions = threading.Thread(target=self.set_subscriptions, args=())
+        self.__threadForSetsubscriptions.start()
 
         self.client=client
 
@@ -231,20 +234,37 @@ class Ui_MainWindow(object):
                 self.textEdit.append(listOfMessages[0])
                 listOfMessages.pop(0)
 
-    def write_subscriptions(self):
-        while 1:
-            while (len (subscriptions_list) != 0):
-                self.textEdit_2.append(subscriptions_list[0])
-                subscriptions_list.pop(0)
+    #def write_subscriptions(self):
+     #   while 1:
+      #      while (len (subscriptions_list) != 0):
+       #         self.textEdit_2.append(subscriptions_list[0])
+        #        subscriptions_list.pop(0)
 
-    def write_topic(self, topic_list):
-        for topic in topic_list:
-            self.textEdit_2.append(topic)
+    #def write_topic(self, topic_list):
+     #   for topic in topic_list:
+      #      self.textEdit_2.append(topic)
 
     def add_elements_to_comboBox(self):
         vector=OS_Resources().get_function_name()
         for fct_name in vector:
             self.comboBox_2.addItem(fct_name)
+
+    def get_string(self):
+        listOfSubscriptions = getlistOfSubscribes()
+        list_topics = listOfSubscriptions[0]
+        list_qos = listOfSubscriptions[1]
+        string = ''
+        length = len(list_topics)
+        for i in range(0, length):
+            string += 'topic: ' + list_topics[i] + '\nQoS: ' + str(list_qos[i]) + '\n'
+        return string
+
+    def set_subscriptions(self):
+        #print("da")
+        while 1:
+            if getFlagChangeSubscribeList():
+                self.textEdit_2.append(self.get_string())
+                setFlagChangeSubscribeList(False)
 
     def complete_msg_from_comboBox(self):
         fct_name = self.comboBox_2.currentText()
@@ -285,35 +305,34 @@ class Ui_MainWindow(object):
             ceva = OS_Resources().get_swap_memory()
             ceva1 = str(ceva)
             self.lineEdit_2.setText(ceva1)
-        elif (fct_name == "get_disk_partitions"):
-            ceva = OS_Resources().get_disk_partitions(True)
-            ceva1 = str(ceva)
-            self.lineEdit_2.setText(ceva1)
+        #elif (fct_name == "get_disk_partitions"):
+         #   ceva = OS_Resources().get_disk_partitions(True)
+          #  ceva1 = str(ceva)
+           # self.lineEdit_2.setText(ceva1)
         elif (fct_name == "get_disk_usage"):
             ceva = OS_Resources().get_disk_usage('/')
             ceva1 = str(ceva)
             self.lineEdit_2.setText(ceva1)
-        elif (fct_name == "get_disk_io_counters"):
-            ceva = OS_Resources().get_disk_io_counters(True, True)
-            ceva1 = str(ceva)
-            self.lineEdit_2.setText(ceva1)
-        elif (fct_name == "get_net_io_counters"):
-            ceva = OS_Resources().get_net_io_counters(False, False)
-            ceva1 = str(ceva)
-            self.lineEdit_2.setText(ceva1)
-        elif (fct_name == "get_net_connections"):
-            ceva = OS_Resources().get_net_connections('inet')
-            ceva1 = str(ceva)
-            self.lineEdit_2.setText(ceva1)
-        elif (fct_name == "get_sensors_temperatures"):
-            ceva = OS_Resources().get_sensors_temperatures(False)
-            print(ceva)
-            ceva1 = str(ceva)
-            self.lineEdit_2.setText(ceva1)
-        elif (fct_name == "get_sensors_fans"):
-            ceva = OS_Resources().get_sensors_fans()
-            ceva1 = str(ceva)
-            self.lineEdit_2.setText(ceva1)
+        #elif (fct_name == "get_disk_io_counters"):
+         #   ceva = OS_Resources().get_disk_io_counters(True, True)
+          #  ceva1 = str(ceva)
+           # self.lineEdit_2.setText(ceva1)
+        #elif (fct_name == "get_net_io_counters"):
+         #   ceva = OS_Resources().get_net_io_counters(False, False)
+          #  ceva1 = str(ceva)
+           # self.lineEdit_2.setText(ceva1)
+        #elif (fct_name == "get_net_connections"):
+         #   ceva = OS_Resources().get_net_connections('inet')
+          #  ceva1 = str(ceva)
+           # self.lineEdit_2.setText(ceva1)
+        #elif (fct_name == "get_sensors_temperatures"):
+         #   ceva = OS_Resources().get_sensors_temperatures(False)
+          #  ceva1 = str(ceva)
+           # self.lineEdit_2.setText(ceva1)
+        #elif (fct_name == "get_sensors_fans"):
+         #   ceva = OS_Resources().get_sensors_fans()
+          #  ceva1 = str(ceva)
+           # self.lineEdit_2.setText(ceva1)
         elif (fct_name == "get_sensors_battery"):
             ceva = OS_Resources().get_sensors_battery()
             ceva1 = str(ceva)

@@ -1,11 +1,15 @@
+import threading
+
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-from Back.client import getConnectResponse, Client
+from Back.client import getConnectResponse, Client, getFlagConnectResponse, setFlagConnectResponse
 
 
 class Ui_ConnectWindow(object):
     def setupUi(self, ConnectWindow, client):
 
+        self.__threadForSetConnect = threading.Thread (target = self.setConnect, args=())
+        self.__threadForSetConnect.start()
         self.client = client
 
         ConnectWindow.setObjectName("ConnectWindow")
@@ -120,6 +124,10 @@ class Ui_ConnectWindow(object):
         self.textEdit = QtWidgets.QTextEdit(ConnectWindow)
         self.textEdit.setGeometry(QtCore.QRect(170, 320, 151, 61))
 
+        self.lineEdit.setText("broker.mqttdashboard.com")
+        self.lineEdit_2.setText("1883")
+        self.lineEdit_5.setText("100")
+
         self.textEdit.setObjectName("textEdit")
 
         self.pushButton.clicked.connect(lambda: self.insert_text())
@@ -210,11 +218,15 @@ class Ui_ConnectWindow(object):
 
         # client.subscribe(['testtopic/foarte/interesant/poate/merge/#'], [2])
 
-        self.textEdit.setText(getConnectResponse())
-
     def on_disconnect_button_clicked(self):
         msg = "Disconnected"
         self.textEdit.setText(msg)
+
+    def setConnect(self):
+        while 1:
+            if getFlagConnectResponse():
+                self.textEdit.append(getConnectResponse())
+                setFlagConnectResponse(False)
 
 
 connection_msg = "Connection accepted"

@@ -34,16 +34,21 @@ def getConnectResponse():
 
 #handle flags for front end
 def getFlagChangeSubscribeList():
+    global flagConnectResponse
     return flagChangeSubscribeList
 
 def setFlagChangeSubscribeList(flagNewValue):
+    global flagChangeSubscribeList
     flagChangeSubscribeList = flagNewValue
 
 def getFlagConnectResponse():
+    global flagConnectResponse
     return flagConnectResponse
 
 def setFlagConnectResponse(flagNewValue):
+    global flagConnectResponse
     flagConnectResponse = flagNewValue
+    print (flagConnectResponse)
 
 class Client(object):
     # init data
@@ -139,6 +144,7 @@ class Client(object):
         if identifierFirstByte == '0x20' and identifierSecondByte == '0x2':  # connack
             connackPacket = Connack()
             response = connackPacket.parseData(packet)
+            global connectResponse
             connectResponse = response
             setFlagConnectResponse(True)
 
